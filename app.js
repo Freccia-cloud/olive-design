@@ -149,31 +149,55 @@
     r.textContent = r.textContent.replace(/^\d+/, String(i + 1).padStart(2, "0"));
   });
 
-  /* ── Método: a rolagem vertical desliza os cartões para o lado ──────────── */
+  /* ── Método ─────────────────────────────────────────────────────────────
+     Computador: a seção fica parada e a rodinha do mouse desliza os cartões.
+     Celular/toque: os cartões deslizam com o dedo, na horizontal. */
   const metodo = document.querySelector(".metodo");
-  if (metodo && !reduzir) {
-    metodo.classList.add("metodo--guiado");
+  if (metodo) {
     const trilho = metodo.querySelector(".metodo-trilho");
+    const janela = metodo.querySelector(".metodo-janela");
     const etapas = [...metodo.querySelectorAll(".etapa")];
     const barra = metodo.querySelector(".metodo-progresso");
+    const modoToque = matchMedia("(max-width: 860px), (hover: none) and (pointer: coarse)");
     let dist = 0;
-    const mover = () => {
-      const andado = -metodo.getBoundingClientRect().top;
-      const p = Math.min(1, Math.max(0, andado / (dist || 1)));
-      trilho.style.transform = `translate3d(${(-p * dist).toFixed(1)}px, 0, 0)`;
+    const marcar = (p) => {
       if (barra) barra.style.setProperty("--p", p.toFixed(3));
       const ativa = Math.round(p * (etapas.length - 1));
       etapas.forEach((e, i) => e.classList.toggle("ativa", i === ativa));
     };
+    const guiado = () => metodo.classList.contains("metodo--guiado");
+    const mover = () => {
+      if (!guiado()) return;
+      const andado = -metodo.getBoundingClientRect().top;
+      const p = Math.min(1, Math.max(0, andado / (dist || 1)));
+      trilho.style.transform = `translate3d(${(-p * dist).toFixed(1)}px, 0, 0)`;
+      marcar(p);
+    };
     // Altura da seção = uma tela + o quanto o trilho precisa andar + uma pausa no último cartão
     const medir = () => {
-      dist = Math.max(0, trilho.scrollWidth - innerWidth);
-      metodo.style.height = `${Math.round(innerHeight + dist * 1.15 + innerHeight * 0.3)}px`;
-      mover();
+      const usarGuiado = !reduzir && !modoToque.matches;
+      metodo.classList.toggle("metodo--guiado", usarGuiado);
+      if (usarGuiado) {
+        dist = Math.max(0, trilho.scrollWidth - innerWidth);
+        metodo.style.height = `${Math.round(innerHeight + dist * 1.15 + innerHeight * 0.3)}px`;
+        mover();
+      } else {
+        metodo.style.height = "";
+        trilho.style.transform = "";
+        aoDeslizar();
+      }
     };
+    // No modo toque, a barra e o cartão em destaque acompanham o dedo
+    const aoDeslizar = () => {
+      if (guiado()) return;
+      const max = janela.scrollWidth - janela.clientWidth;
+      marcar(max > 0 ? janela.scrollLeft / max : 0);
+    };
+    janela.addEventListener("scroll", () => requestAnimationFrame(aoDeslizar), { passive: true });
     addEventListener("scroll", () => requestAnimationFrame(mover), { passive: true });
     addEventListener("resize", medir);
     addEventListener("load", medir);
+    if (modoToque.addEventListener) modoToque.addEventListener("change", medir);
     if (document.fonts) document.fonts.ready.then(medir);
     medir();
   }

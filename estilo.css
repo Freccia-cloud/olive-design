@@ -425,5 +425,22 @@ h1, h2 { letter-spacing: -.015em; }
 .metodo--guiado .etapa > * { transition: opacity .5s var(--ease); }
 .metodo--guiado .etapa:not(.ativa) > * { opacity: .5; }
 .metodo--guiado .etapa.ativa { transform: none; box-shadow: 0 30px 70px -30px rgb(10 12 2 / .8); }
+/* Ícones de contorno das etapas (no lugar das azeitonas) */
+.etapa-icone {
+  width: clamp(52px, 7vh, 64px); height: auto; aspect-ratio: 1; margin: 2px 0 20px -2px;
+  fill: none; stroke: var(--papel-suave); stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round;
+}
+/* Cartões que deslizam com o dedo (celular) */
+.metodo:not(.metodo--guiado) .metodo-janela {
+  overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); touch-action: pan-x pan-y;
+}
+.metodo:not(.metodo--guiado) .etapa { scroll-snap-align: start; transition: transform .4s var(--ease), box-shadow .4s var(--ease); }
+.metodo:not(.metodo--guiado) .etapa:not(.ativa) { transform: scale(.96); }
+.metodo:not(.metodo--guiado) .etapa:not(.ativa) > * { opacity: .55; transition: opacity .4s var(--ease); }
+.metodo:not(.metodo--guiado) .metodo-trilho { padding: 4px var(--gutter) 24px; }
+.metodo:not(.metodo--guiado) .metodo-palco { min-height: auto; padding-bottom: 12vh; }
+.metodo-dica { display: none; margin-top: 12px; font-size: 13px; letter-spacing: .04em; color: var(--texto-suave); }
+.metodo:not(.metodo--guiado) .metodo-dica { display: block; }
 /* Barra do topo quase opaca: o menu creme continua legível quando um painel bege passa por baixo */
 .topo.rolou { background: rgb(38 40 16 / .94); }
